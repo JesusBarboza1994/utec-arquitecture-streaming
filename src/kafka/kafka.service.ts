@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { EventPattern } from '@nestjs/microservices';
 import { Kafka } from 'kafkajs';
-import { partition } from 'rxjs';
 
 @Injectable()
 export class KafkaService {
@@ -11,6 +11,11 @@ export class KafkaService {
       clientId: 'CLIENT',
       brokers: ['localhost:9092'],
     });
+  }
+
+  @EventPattern('test-topic')
+  async handleMessage(message: any) {
+    console.log(`Mensaje recibido: ${message.value}`);
   }
 
   async sendMessage(topic: string, message: string): Promise<void> {
@@ -28,10 +33,10 @@ export class KafkaService {
     await consumer.connect();
     await consumer.subscribe({ topic });
     await consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        console.log({
-          value: message.value.toString(),
-        });
+      eachMessage: async ({ message }) => {
+        const value = message.value.toString();
+        const event = JSON.parse(value); // Si está serializado en JSON
+        console.log('Evento procesado:', event);
       },
     });
   }
