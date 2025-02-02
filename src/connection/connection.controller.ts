@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ConnectionService } from './connection.service';
 
 interface StockUpdateInfoDto {
@@ -15,8 +15,16 @@ export class ConnectionController {
   }
 
   @Get()
-  async listStock() {
-    const stockList = await this.connectionService.getAllStock();
+  async listStock(
+    @Query('page') page: number = 1,
+    @Query('search') search?: string,
+    @Query('limit') limit: number = 50,
+  ) {
+    const stockList = await this.connectionService.getStock(
+      page,
+      limit,
+      search,
+    );
 
     return stockList;
   }

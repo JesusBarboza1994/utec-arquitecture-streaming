@@ -2,8 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConnectionGateway } from './connection.gateway';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Stock } from 'src/db/stock.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
+export interface GetAllStockResponse {
+  stocks: StockAdapter[];
+  pages: number;
+}
+export interface StockAdapter {
+  id_stock: number;
+  id_producto: number;
+  stock_actual: number;
+  fecha_actualizacion: string;
+}
 @Injectable()
 export class ConnectionService {
   constructor(
@@ -16,8 +26,45 @@ export class ConnectionService {
     console.log(`Emitiendo stock: ${id}, ${stock}`);
   }
 
-  async getAllStock(): Promise<Stock[]> {
-    return this.stockRepository.find(); // SELECT * FROM stock
+  async getStock(
+    page: number = 1,
+    limit: number = 50,
+    search?: string,
+  ): Promise<GetAllStockResponse> {
+    const offset = (page - 1) * limit;
+
+    const whereCondition = search
+      ? [
+          { id_stock: Like(`%${search}%`) }, // Buscar en `id_stock`
+          { id_producto: Like(`%${search}%`) }, // Buscar en `id_producto`
+        ]
+      : {};
+
+    const [stocks, total] = await this.stockRepository.findAndCount({
+      select: [
+        'id_stock',
+        'id_producto',
+        'fecha_actualizacion',
+        'stock_actual',
+      ],
+      where: whereCondition,
+      take: limit,
+      skip: offset,
+    });
+
+    const formatStock: StockAdapter[] = stocks.map((stock) => {
+      return {
+        id_stock: stock.id_stock,
+        id_producto: stock.id_producto,
+        stock_actual: stock.stock_actual,
+        fecha_actualizacion: this.formatDateTime(stock.fecha_actualizacion),
+      };
+    });
+
+    return {
+      stocks: formatStock,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async getStockById(id_stock: number): Promise<Stock> {
@@ -26,5 +73,16 @@ export class ConnectionService {
       throw new NotFoundException(`Stock con ID ${id_stock} no encontrado`);
     }
     return stock;
+  }
+
+  formatDateTime(date: Date): string {
+    return date.toLocaleString('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   }
 }
