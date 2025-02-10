@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ConnectionService } from './connection.service';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ConnectionService, StockUpdateItemsDto } from './connection.service';
 
 interface StockUpdateInfoDto {
   id: string;
@@ -32,6 +32,12 @@ export class ConnectionController {
   @Get('/:id')
   async getStockById(@Param('id') id: string) {
     const stock = await this.connectionService.getStockById(Number(id));
+    return stock;
+  }
+
+  @Patch('/purchase')
+  async updateStockItems(@Body() body: StockUpdateItemsDto[]) {
+    const stock = await this.connectionService.updateStockItems(body);
     return stock;
   }
 }
