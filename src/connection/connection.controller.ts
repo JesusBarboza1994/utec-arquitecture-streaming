@@ -4,6 +4,7 @@ import { ConnectionService, StockUpdateItemsDto } from './connection.service';
 interface StockUpdateInfoDto {
   id: string;
   stock: number;
+  fecha_actualizacion: string;
 }
 
 @Controller('connection')
@@ -11,7 +12,7 @@ export class ConnectionController {
   constructor(private readonly connectionService: ConnectionService) {}
   @Post()
   stockUpdateInfo(@Body() body: StockUpdateInfoDto) {
-    this.connectionService.socketEmit(body.id, body.stock);
+    this.connectionService.socketEmit(body.id, body.stock, body.fecha_actualizacion);
   }
 
   @Get()

@@ -10,7 +10,7 @@ export class ConnectionGateway {
   @WebSocketServer()
   server: Server;
 
-  emitStockUpdate(id: string, stock: number) {
-    this.server.emit('stockUpdate', { id, stock }); // Emitir evento con datos
+  emitStockUpdate(id: string, stock: number, fecha_actualizacion: string) {
+    this.server.emit('stockUpdate', { id, stock, fecha_actualizacion }); // Emitir evento con datos
   }
 }

@@ -27,8 +27,8 @@ export class ConnectionService {
     private stockRepository: Repository<Stock>,
     private readonly connectionGateway: ConnectionGateway,
   ) {}
-  socketEmit(id: string, stock: number) {
-    this.connectionGateway.emitStockUpdate(id, stock);
+  socketEmit(id: string, stock: number, fecha_actualizacion: string) {
+    this.connectionGateway.emitStockUpdate(id, stock, fecha_actualizacion);
     console.log(`Emitiendo stock: ${id}, ${stock}`);
   }
 
