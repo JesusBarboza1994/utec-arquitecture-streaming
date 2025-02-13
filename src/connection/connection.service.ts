@@ -28,7 +28,7 @@ export class ConnectionService {
     private readonly connectionGateway: ConnectionGateway,
   ) {}
   socketEmit(id: string, stock: number, fecha_actualizacion: string) {
-    this.connectionGateway.emitStockUpdate(id, stock, fecha_actualizacion);
+    this.connectionGateway.emitStockUpdate(id, stock, this.formatDateTime(new Date(fecha_actualizacion)));
     console.log(`Emitiendo stock: ${id}, ${stock}`);
   }
 
@@ -137,6 +137,7 @@ export class ConnectionService {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
+      timeZone: 'America/Lima',
     });
   }
 }
